@@ -25,26 +25,18 @@ $$f(\delta, \mu_1, \mu_2, \sigma_1^2, \sigma_2^2|x)\propto \exp [\log(\frac{\del
 
 ```{r}
 # true value
-
 delta <- 0.7
 mu1 <- 2
 mu2 <- 4
 sigma1 <- 2
 sigma2 <- 3
-
-
-
 # sample
 n <- 1000
 u <- rbinom(n, prob = delta, size = 1)
 dat <- rnorm(n, ifelse(u == 1, mu1, mu2), ifelse(u == 1, sigma1, sigma2))
-
-
 mylike <- function(delta, mu1, mu2, sigma1, sigma2, x){
-  log(delta / sigma1 * exp(-(x - mu1) ^ 2 / (2 * sigma1 ^ 2)) + (1 - delta) / sigma2 * exp(-(x - mu2) ^ 2 / (2 * sigma2))) - mu1 ^ 2 / 200 - mu2 ^ 2 / 200 - 3 * log(sigma1) -3 * log(sigma2) - 1 / (10 * sigma1 ^ 2) - 1 / (10 * sigma2 ^ 2)
+  sum(log(delta / sigma1 * exp(-(x - mu1) ^ 2 / (2 * sigma1 ^ 2)) + (1 - delta) / sigma2 * exp(-(x - mu2) ^ 2 / (2 * sigma2))) - mu1 ^ 2 / 200 - mu2 ^ 2 / 200 - 3 * log(sigma1) -3 * log(sigma2) - 1 / (10 * sigma1 ^ 2) - 1 / (10 * sigma2 ^ 2))
 }
-
-
 mymcmc <- function(niter, init, data){
     v <- matrix(NA, niter, 5)
     for (i in 1:niter) {
@@ -70,8 +62,6 @@ mymcmc <- function(niter, init, data){
     }    
     v
 }
-
-
 niter <- 10000
 init <- c(.6, 3, 5, 3, 4)
 y <- mymcmc(niter, init, dat)[-(1: 5000), ]
@@ -96,23 +86,15 @@ mu1 <- 2
 mu2 <- 4
 sigma1 <- 2
 sigma2 <- 3
-
-
-
 # sample
 n <- 1000
 u <- rbinom(n, prob = delta, size = 1)
 dat <- rnorm(n, ifelse(u == 1, mu1, mu2), ifelse(u == 1, sigma1, sigma2))
-
-
 mylike <- function(delta, mu1, mu2, sigma1, sigma2, x){
-  log(delta / sigma1 * exp(-(x - mu1) ^ 2 / (2 * sigma1 ^ 2)) + (1 - delta) / sigma2 * exp(-(x - mu2) ^ 2 / (2 * sigma2))) - mu1 ^ 2 / 200 - mu2 ^ 2 / 200 - 3 * log(sigma1) -3 * log(sigma2) - 1 / (10 * sigma1 ^ 2) - 1 / (10 * sigma2 ^ 2)
+  sum(log(delta / sigma1 * exp(-(x - mu1) ^ 2 / (2 * sigma1 ^ 2)) + (1 - delta) / sigma2 * exp(-(x - mu2) ^ 2 / (2 * sigma2))) - mu1 ^ 2 / 200 - mu2 ^ 2 / 200 - 3 * log(sigma1) -3 * log(sigma2) - 1 / (10 * sigma1 ^ 2) - 1 / (10 * sigma2 ^ 2))
 }
-
 init <- c(.6, 3, 5, 3, 4)
-
 y <- arms(init, function(x) mylike(x[1], x[2], x[3], x[4], x[5], x = dat), function(x) (x[1] > 1e-5) * (x[1] < 1-1e-5) * (x[2]/10 > (-7)) * (x[2]/10 < 7) * (x[3]/10 > (-7)) * (x[3]/10 < 7) * (x[4] > 1e-5) * (x[4] < 10) * (x[5] > 1e-5) * (x[5] < 10), 10000)[-(1:5000), ]
-
 hist(y[, 1], main = "delta")
 plot(ts(y[, 1]), main = "delta")
 hist(y[, 2], main = "mu1")
@@ -124,6 +106,3 @@ plot(ts(y[, 4]), main = "sigma1")
 hist(y[, 5], main = "sigma2")
 plot(ts(y[, 5]), main = "sigma2")
 ```
-
-
-
