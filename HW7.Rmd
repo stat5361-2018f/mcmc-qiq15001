@@ -19,17 +19,18 @@ $\mu_1 \sim N(0, 10^2)$, $\mu_2 \sim N(0, 10^2)$, $1/\sigma_1^2 \sim Gamma(.5, 1
 $$f(\delta, \mu_1, \mu_2, \sigma_1^2, \sigma_2^2, x)= [\delta\frac{1}{\sqrt{2\pi}\sigma_1}e^{-\frac{(x-\mu_1)^2}{2\sigma_1^2}}+(1-\delta)\frac{1}{\sqrt{2\pi}\sigma_2}e^{-\frac{(x-\mu_2)^2}{2\sigma_2^2}}]$$
 $$\frac{1}{2\pi}e^{-\frac{\mu_1^2+\mu_2^2}{200}}\frac{1}{\Gamma(.5)^210}(1/\sigma_1^2)^{1.5}(1/\sigma_2^2)^{1.5}e^{-\frac{1}{10\sigma_1^2}}e^{-\frac{1}{10\sigma_2^2}}$$
 $$f(\delta, \mu_1, \mu_2, \sigma_1^2, \sigma_2^2|x)\propto \exp [\log(\frac{\delta}{\sigma_1}e^{-\frac{(x-\mu_1)^2}{2\sigma_1^2}}+\frac{1-\delta}{\sigma_2}e^{-\frac{(x-\mu_2)^2}{2\sigma_2^2}})-\mu_1^2/200-\mu_2^2/200-3\log\sigma_1-3\log\sigma_2-\frac{1}{10\sigma_1^2}-\frac{1}{10\sigma_2^2}]$$
+
 ### estimate parameters step by step
 
 ```{r}
 # true value
 delta <- 0.7
 mu1 <- 2
-mu2 <- 4
-sigma1 <- .5
-sigma2 <- .8
+mu2 <- 3
+sigma1 <- .8
+sigma2 <- .5
 # sample
-n <- 1000
+n <- 100
 u <- rbinom(n, prob = delta, size = 1)
 dat <- rnorm(n, ifelse(u == 1, mu1, mu2), ifelse(u == 1, sigma1, sigma2))
 mylike <- function(delta, mu1, mu2, sigma1, sigma2, x){
@@ -60,9 +61,9 @@ mymcmc <- function(niter, init, data){
   }    
   v
 }
-niter <- 10000
-init <- c(.6, 3, 5, 3, 4)
-y <- mymcmc(niter, init, dat)[-(1: 5000), ]
+niter <- 2500
+init <- c(.6, 0, 0, 1, 1)
+y <- mymcmc(niter, init, dat)[-(1: 500), ]
 hist(y[, 1], main = "delta")
 plot(ts(y[, 1]), main = "delta")
 hist(y[, 2], main = "mu1")
@@ -81,18 +82,18 @@ plot(ts(y[, 5]), main = "sigma2")
 # true value
 delta <- 0.7
 mu1 <- 2
-mu2 <- 4
-sigma1 <- .5
-sigma2 <- .8
+mu2 <- 3
+sigma1 <- .8
+sigma2 <- .5
 # sample
-n <- 1000
+n <- 100
 u <- rbinom(n, prob = delta, size = 1)
 dat <- rnorm(n, ifelse(u == 1, mu1, mu2), ifelse(u == 1, sigma1, sigma2))
 mylike <- function(delta, mu1, mu2, sigma1, sigma2, x){
   sum(log(delta / sigma1 * exp(-(x - mu1) ^ 2 / (2 * sigma1 ^ 2)) + (1 - delta) / sigma2 * exp(-(x - mu2) ^ 2 / (2 * sigma2))) - mu1 ^ 2 / 200 - mu2 ^ 2 / 200 - 3 * log(sigma1) -3 * log(sigma2) - 1 / (10 * sigma1 ^ 2) - 1 / (10 * sigma2 ^ 2))
 }
-init <- c(.6, 3, 5, 3, 4)
-y <- arms(init, function(x) mylike(x[1], x[2], x[3], x[4], x[5], x = dat), function(x) (x[1] > 1e-5) * (x[1] < 1-1e-5) * (x[2]/10 > (-7)) * (x[2]/10 < 7) * (x[3]/10 > (-7)) * (x[3]/10 < 7) * (x[4] > 1e-5) * (x[4] < 10) * (x[5] > 1e-5) * (x[5] < 10), 10000)[-(1:5000), ]
+init <- c(.6, 0, 0, 1, 1)
+y <- arms(init, function(x) mylike(x[1], x[2], x[3], x[4], x[5], x = dat), function(x) (x[1] > 1e-5) * (x[1] < 1-1e-5) * (x[2]/10 > (-7)) * (x[2]/10 < 7) * (x[3]/10 > (-7)) * (x[3]/10 < 7) * (x[4] > 1e-5) * (x[4] < 10) * (x[5] > 1e-5) * (x[5] < 10), 2500)[-(1:500), ]
 hist(y[, 1], main = "delta")
 plot(ts(y[, 1]), main = "delta")
 hist(y[, 2], main = "mu1")
